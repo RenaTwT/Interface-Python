@@ -2,12 +2,15 @@ import tkinter
 from tkinter import filedialog,messagebox
 import os
 import PyPDF2
+import requests
+from datetime import datetime, date
 
 Var = "Selecione um PDF:"
 
 def Get_text_from_PDFfiles_usingPyPDF2(in_PdfFile):  
     reader = PyPDF2.PdfReader(in_PdfFile) 
     print(reader.pages[0].extract_text())
+    print(response.text)
 
 def Arquivo():
     arquivo = filedialog.askopenfilename(
@@ -42,10 +45,22 @@ def selecionar_pdf():
         #pady=10
        # )
    # btn_selecionar.pack(pady=20)
+
     
     label_arquivo=tkinter.Label(root,text="Nenhum arquivo selecionado",wraplength=350)
     label_arquivo.pack(pady=10)
 
     root.mainloop()
 
+url = "https://date.nager.at/api/v3/PublicHolidays/2025/BR"
+
+payload = {}
+data_inicial = date(2024,9,16)
+data_final = date(2026,12,25)
+headers = {
+'accept': 'application/json',
+'X-CSRF-TOKEN': 'pYBqfz7tfH5NFeqA2YXNhdZIsqRCMmef6FjOTNJz'
+}
+
+response = requests.request("GET", url, headers=headers, data=payload)
 selecionar_pdf()
