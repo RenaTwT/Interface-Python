@@ -1,24 +1,50 @@
 import tkinter
-from tkinter import filedialog,messagebox
-import os
+from tkinter.filedialog import askopenfilename 
 import PyPDF2
 import requests
 from datetime import datetime, date
+import re
 
-Var = "Selecione um PDF:"
+def ChamadaAPI(Ano):
+    url = "https://date.nager.at/api/v3/PublicHolidays/"+Ano+"/BR"
+
+    payload = {}
+    headers = {
+    'accept': 'application/json',
+    'X-CSRF-TOKEN': 'pYBqfz7tfH5NFeqA2YXNhdZIsqRCMmef6FjOTNJz'
+    }
+
+    response = requests.request("GET", url, headers=headers, data=payload)
+
+
+    return response.text
 
 def Get_text_from_PDFfiles_usingPyPDF2(in_PdfFile):  
     reader = PyPDF2.PdfReader(in_PdfFile) 
-    print(reader.pages[0].extract_text())
-    print(response.text)
+    return reader.pages[0].extract_text()
+    #print(response.text)
 
-def Arquivo():
-    arquivo = filedialog.askopenfilename(
-        title="Selecione um PDF:",
-        filetypes=[("ArquivoPDF","*.pdf"),("Todos os arquivos","*.*")]
+#def Arquivo():
+ #   arquivo = filedialog.askopenfilename(
+  #      title="Selecione um PDF:",
+   #     filetypes=[("ArquivoPDF","*.pdf"),("Todos os arquivos","*.*")]
         
-        )
-    Get_text_from_PDFfiles_usingPyPDF2(arquivo)
+    #    )
+    #Get_text_from_PDFfiles_usingPyPDF2(arquivo)
+
+def LerPDF():
+    filename = askopenfilename()
+    ConteudoPDF = Get_text_from_PDFfiles_usingPyPDF2(filename)
+    ListaDeAnos = set(re.findall(r"\d{4}(?=-\d{2})",ConteudoPDF))
+
+    ListaFeriados = ""
+    for Ano in ListaDeAnos:
+        ListaFeriados = ListaFeriados+ ChamadaAPI(Ano)
+
+    for Data in ConteudoPDF.split("\n"):
+        if Data.strip() in ListaFeriados:
+            print(Data)
+
 
 def selecionar_pdf():
 
@@ -26,11 +52,11 @@ def selecionar_pdf():
     root.title("Seletor de PDF:")
     root.geometry("400x200")
 
-    texto = tkinter.Label(root, text = Var)
+    texto = tkinter.Label(root, text = "teste")
     texto.pack()
 
     test1 = tkinter.Button(root, text="Selecione")
-    test1['command'] = Arquivo
+    test1['command'] = LerPDF
     
     test1.pack()
 
@@ -52,15 +78,6 @@ def selecionar_pdf():
 
     root.mainloop()
 
-url = "https://date.nager.at/api/v3/PublicHolidays/2025/BR"
-
-payload = {}
-data_inicial = date(2024,9,16)
-data_final = date(2026,12,25)
-headers = {
-'accept': 'application/json',
-'X-CSRF-TOKEN': 'pYBqfz7tfH5NFeqA2YXNhdZIsqRCMmef6FjOTNJz'
-}
-
-response = requests.request("GET", url, headers=headers, data=payload)
 selecionar_pdf()
+
+
